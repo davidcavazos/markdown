@@ -1,7 +1,6 @@
 module Document exposing
     ( Block(..)
     , Document(..)
-    , Heading(..)
     , Image(..)
     , Inline(..)
     )
@@ -16,7 +15,12 @@ type Document
 
 type Block
     = Paragraph (List Inline)
-    | Heading Heading
+    | Heading1 (List Inline)
+    | Heading2 (List Inline)
+    | Heading3 (List Inline)
+    | Heading4 (List Inline)
+    | Heading5 (List Inline)
+    | Heading6 (List Inline)
     | CodeBlock String
     | BlockQuote (List Block)
     | NumberedList (List (List Block))
@@ -25,15 +29,6 @@ type Block
     | HorizontalLine
     | Table (List (List (List Block)))
     | Collapsible String (List Block)
-
-
-type Heading
-    = Heading1 (List Inline)
-    | Heading2 (List Inline)
-    | Heading3 (List Inline)
-    | Heading4 (List Inline)
-    | Heading5 (List Inline)
-    | Heading6 (List Inline)
 
 
 type Inline

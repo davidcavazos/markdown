@@ -1,2 +1,3 @@
-# markdown
-Reading/writing Markdown into/from a Document
+# Markdown
+
+Read/write Markdown into/from a Document.

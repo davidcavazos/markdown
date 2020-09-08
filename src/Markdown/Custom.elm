@@ -1,8 +1,22 @@
-module Markdown.Custom exposing (readWithExtensions, writeWithExtensions)
+module Markdown.Custom exposing
+    ( readWithExtensions, writeWithExtensions
+    , parseInline
+    )
 
 {-| Read and writeWithExtensions custom Markdown documents.
 
+
+# Basic usage
+
 @docs readWithExtensions, writeWithExtensions
+
+
+# Blocks
+
+
+# Inlines
+
+@docs parseInline
 
 -}
 
@@ -10,13 +24,17 @@ import Document exposing (Block, Document, Inline)
 import Parser exposing (Parser)
 
 
-type alias CustomExtensions =
-    { customBlocks : List (Parser Block)
-    , customInlines : List (Parser Inline)
+
+-- BASIC USAGE
+
+
+type alias Extensions =
+    { blocks : List (List (Parser Block) -> List (Parser Inline) -> Parser Block)
+    , inlines : List (List (Parser Inline) -> Parser Inline)
     }
 
 
-{-| Read a Markdown document with custom extensions.
+{-| Reads a Markdown document with custom extensions.
 This starts with a plain Markdown implementation.
 
 Extensions are defined using custom parsers from the
@@ -26,25 +44,34 @@ library.
 The extensions are tried in order.
 If no extension maches, it is interpreted as a normal paragraph.
 
-    import Document exposing (Block(..), Heading(..), Inline(..))
-    import Parser exposing (Parser)
+    import Document exposing (Block(..), Inline(..))
+    import Parser exposing (Parser, andThen, anyChar, drop, into, line, succeed, take, text, textOf, until)
 
-    customHeading : Parser Block
-    customHeading =
-        into "Custom heading" <|
-            succeed
+    -- A custom header starts with `--`
+    customHeading : List (Parser Block) -> List (Parser Inline) -> Parser Block
+    customHeading blocks inlines =
+        into "Custom heading"
+            ( succeed Heading1
+                |> drop (text "--")
+                |> take (line |> andThen (parseInline inlines))
+            )
 
-    customBold : Parser Inline
-    customBold =
-        Debug.todo "customBold"
+    -- A custom bold <<looks like this>>
+    customBold : List (Parser Inline) -> Parser Inline
+    customBold inlines =
+        into "Custom bold"
+            ( succeed Bold
+                |> drop (text "<<")
+                |> take
+                    (textOf (anyChar |> until (text ">>"))
+                        |> andThen (parseInline inlines)
+                    )
+                |> drop (text ">>")
+            )
 
     readWithExtensions
-        { customBlocks =
-            [ customHeading
-            ]
-        , customInlines =
-            [ customBold
-            ]
+        { blocks = [ customHeading ]
+        , inlines = [ customBold ]
         }
         (String.join "\n"
             [ "-- 📄 Markdown with a custom heading"
@@ -54,11 +81,21 @@ If no extension maches, it is interpreted as a normal paragraph.
     --> ""
 
 -}
-readWithExtensions : CustomExtensions -> String -> String
-readWithExtensions { customBlocks, customInlines } text =
+readWithExtensions : Extensions -> String -> String
+readWithExtensions { blocks, inlines } text =
     text
 
 
 writeWithExtensions : Document -> String
 writeWithExtensions doc =
     Debug.todo "writeWithExtensions"
+
+
+
+-- BLOCKS
+-- INLINES
+
+
+parseInline : List (Parser Inline) -> String -> Parser (List Inline)
+parseInline extensions text =
+    Debug.todo "parseInline"

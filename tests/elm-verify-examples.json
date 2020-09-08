@@ -1,8 +1,6 @@
 {
   "root": "../src",
   "tests": [
-    "Markdown.Custom",
-    "Markdown.GitHubFlavored",
-    "README.md"
+    "Markdown.Custom"
   ]
 }
